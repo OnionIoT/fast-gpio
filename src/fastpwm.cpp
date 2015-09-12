@@ -83,10 +83,8 @@ void FastPwm::_Pwm (int pinNum)
 		_Sleep(periodHigh);
 
 		// LOW part of cycle
-		if (dutyCycle <= 0.95f) {
-			gpio.Set(pinNum, 0);
-			_Sleep(periodLow);
-		}
+		gpio.Set(pinNum, 0);
+		_Sleep(periodLow);
 	}
 }
 

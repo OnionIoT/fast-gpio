@@ -1,31 +1,5 @@
-#include <stdlib.h>
-#include <cstdio>
-#include <cstring>
+#include <main.h>
 
-#include <fastgpio.h>
-#include <fastpwm.h>
-
-#define VERBOSE		1
-#define	DEBUG 		0
-
-typedef enum e_GpioCmd {
-	GPIO_CMD_SET = 0,
-	GPIO_CMD_READ,
-	GPIO_CMD_PWM,
-	NUM_GPIO_CMD
-} gpioCmd;
-
-struct gpioSetup {
-	gpioCmd cmd; 
-
-	int 	pinNumber;
-	int 	pinValue;
-
-	// pwm options
-	int 	bPwm;
-	int 	pwmFreq;
-	int 	pwmDuty;
-};
 
 void initGpioSetup (gpioSetup* obj)
 {
@@ -52,6 +26,9 @@ int parseArguments(int argc, char* argv[], gpioSetup *setup)
 
 		return EXIT_FAILURE;
 	}
+
+	// reset the gpio setup
+	initGpioSetup(setup);
 
 	// parse the command line arguments
 	//	arg1 - command: read, set
@@ -83,29 +60,21 @@ int parseArguments(int argc, char* argv[], gpioSetup *setup)
 	return EXIT_SUCCESS;
 }
 
-// function to accept gpio and pwm commands
+// function to run gpio commands
 int gpioRun(gpioSetup* setup)
 {
-	int status	= 0;
-
+	int status	= EXIT_SUCCESS;
 	FastGpio	gpioObj;
-	FastPwm		pwmObj;
-
-	int 	verbosity 		= 1;
-	int 	debugLevel		= 0;
 
 	// object setup
 	gpioObj.SetVerbosity(VERBOSE);
 	gpioObj.SetDebugMode(DEBUG);
-	
-	pwmObj.SetVerbosity(VERBOSE);
-	pwmObj.SetDebugMode(DEBUG);
 
 
 	// object operations	
 	switch (setup->cmd) {
 		case GPIO_CMD_SET:
-			if (verbosity > 0) printf("Setting GPIO%d to %d\n", setup->pinNumber, setup->pinValue);
+			if (VERBOSE > 0) printf("Setting GPIO%d to %d\n", setup->pinNumber, setup->pinValue);
 
 			gpioObj.SetDirection(setup->pinNumber, 1); // set to output
 			gpioObj.Set(setup->pinNumber, setup->pinValue);
@@ -113,23 +82,94 @@ int gpioRun(gpioSetup* setup)
 
 		case GPIO_CMD_READ:
 			gpioObj.Read(setup->pinNumber, setup->pinValue);
-			if (verbosity > 0) printf("Read GPIO%d: %d\n", setup->pinNumber, setup->pinValue);
+			if (VERBOSE > 0) printf("Read GPIO%d: %d\n", setup->pinNumber, setup->pinValue);
 			break;
-
-		case GPIO_CMD_PWM:
-			pwmObj.Pwm(setup->pinNumber, setup->pwmFreq, setup->pwmDuty);
 
 		default:
+			status = EXIT_FAILURE;
 			break;
 	}
+
+	return status;
+}
+
+// function to run pwm commands
+int pwmRun(gpioSetup* setup)
+{
+	FastPwm		pwmObj;
+
+	// check for correct command
+	if (setup->cmd != GPIO_CMD_PWM) {
+		return EXIT_FAILURE;
+	}
+
+	// object setup
+	pwmObj.SetVerbosity(VERBOSE);
+	pwmObj.SetDebugMode(DEBUG);
+
+
+	// object operations	
+	pwmObj.Pwm(setup->pinNumber, setup->pwmFreq, setup->pwmDuty);
 
 	return EXIT_SUCCESS;
 }
 
+// function to note the PID of the child process
+int noteChildPid(int pinNum, int pid)
+{
+	char 	pathname[255];
+	std::ofstream myfile;
+	
+	// determine thef file name and open the file
+	snprintf(pathname, sizeof(pathname), PID_FILE, pinNum);
+	myfile.open (pathname);
 
+	// write the pid to the file
+	myfile << pid;
+	myfile << "\n";
+
+	myfile.close();
+
+
+	return EXIT_SUCCESS;
+} 
+
+// function to read any existing pid notes and kill the child processes
+int killOldProcess(int pinNum)
+{
+	char 	pathname[255];
+	char	line[255];
+	char	cmd[255];
+
+	int 	pid;
+	std::ifstream myfile;
+
+	// determine thef file name and open the file
+	snprintf(pathname, sizeof(pathname), PID_FILE, pinNum);
+	myfile.open (pathname);
+
+	// read the file
+	if ( myfile.is_open() ) {
+		// file exists, check for pid
+		myfile.getline(line, 255);
+		pid = atoi(line);
+
+		// kill the process
+		if (pid > 0)
+		{
+			sprintf(cmd, "kill %d", pid);
+			system(cmd);
+			printf("Exiting current pwm process (pid: %d)\n", pid);
+		}
+	}
+
+
+	return EXIT_SUCCESS;
+}
 
 int main(int argc, char* argv[])
 {
+	int status;
 	gpioSetup* setup 	= new gpioSetup;
 
 	// parse the arguments
@@ -138,7 +178,28 @@ int main(int argc, char* argv[])
 	}
 
 	// run the command
-	gpioRun(setup);
+	if (setup->cmd != GPIO_CMD_PWM) {
+		// single gpio command
+		status = gpioRun(setup);
+	}
+	else {
+		//// continuous gpio commands, need another process
+		// check for any pwm processes already running on this pin
+		killOldProcess(setup->pinNumber);
+
+		// create the new process
+		pid_t pid = fork();
+
+		if (pid == 0) {
+			// child process, run the pwm
+			status = pwmRun(setup);
+		}
+		else {
+			// parent process
+			if (VERBOSE > 0) printf("Launched child pwm process, pid: %d \n", pid);
+			noteChildPid(setup->pinNumber, pid);
+		}
+	}
 
 	return 0;
 }
