@@ -163,7 +163,7 @@ int killOldProcess(int pinNum)
 		{
 			sprintf(cmd, "kill %d >& /dev/null", pid);
 			system(cmd);
-			if (FASTGPIO_VERBOSE) printf("Exiting current pwm process (pid: %d)\n", pid);
+			if (FASTGPIO_VERBOSE > 0) printf("Exiting current pwm process (pid: %d)\n", pid);
 		}
 	}
 
