@@ -15,7 +15,7 @@ void printUsage(char* progName) {
 	printf("Usage:\n");
 	printf("\t%s read <gpio>\n", progName);
 	printf("\t%s set <gpio> <value: 0 or 1>\n", progName);
-	printf("\t%s pwm <gpio> <freq in MHz> <duty cycle percentage>\n", progName);
+	printf("\t%s pwm <gpio> <freq in Hz> <duty cycle percentage>\n", progName);
 	printf("\n");
 }
 
