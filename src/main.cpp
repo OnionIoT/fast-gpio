@@ -15,7 +15,7 @@ void printUsage(char* progName) {
 	printf("Usage:\n");
 	printf("\t%s read <gpio>\n", progName);
 	printf("\t%s set <gpio> <value: 0 or 1>\n", progName);
-	printf("\t%s pwm <gpio> <freq in MHz> <duty (out of 100)>\n", progName);
+	printf("\t%s pwm <gpio> <freq in MHz> <duty cycle percentage>\n", progName);
 	printf("\n");
 }
 
@@ -86,7 +86,7 @@ int gpioRun(gpioSetup* setup)
 
 		case GPIO_CMD_READ:
 			gpioObj.Read(setup->pinNumber, setup->pinValue);
-			if (FASTGPIO_VERBOSE > 0) printf("Read GPIO%d: %d\n", setup->pinNumber, setup->pinValue);
+			printf("Read GPIO%d: %d\n", setup->pinNumber, setup->pinValue);
 			break;
 
 		default:
