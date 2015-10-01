@@ -1,4 +1,4 @@
-#!/bin/sh -v
+#!/bin/sh
 
 Usage () {
 	echo "Functionality:"
@@ -102,6 +102,6 @@ echo "Colors: $rDuty $gDuty $bDuty"
 echo "Colors: $rDuty2 $gDuty2 $bDuty2"
 
 #run the pwm
-./fast-gpio pwm 17 200 $rDuty
-./fast-gpio pwm 16 200 $gDuty
-./fast-gpio pwm 15 200 $bDuty
+fast-gpio pwm 17 200 $rDuty
+fast-gpio pwm 16 200 $gDuty
+fast-gpio pwm 15 200 $bDuty
