@@ -12,7 +12,7 @@
 #include <fastpwm.h>
 
 
-#define VERBOSE		1
+#define VERBOSE		0
 #define	DEBUG 		0
 
 #define PID_FILE	"/tmp/pin%d_pwm_pid"
@@ -42,6 +42,8 @@ struct gpioSetup {
 
 // function definitions
 void 	initGpioSetup 		(gpioSetup* obj);
+
+void 	printUsage			(char* progName);
 int 	parseArguments		(int argc, char* argv[], gpioSetup *setup);
 
 int 	gpioRun				(gpioSetup* setup);

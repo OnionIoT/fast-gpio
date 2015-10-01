@@ -11,6 +11,14 @@ void initGpioSetup (gpioSetup* obj)
 	obj->pwmDuty	= 0;
 }
 
+void printUsage(char* progName) {
+	printf("Usage:\n");
+	printf("\t%s read <gpio>\n", progName);
+	printf("\t%s set <gpio> <value: 0 or 1>\n", progName);
+	printf("\t%s pwm <gpio> <freq in MHz> <duty (out of 100)>\n", progName);
+	printf("\n");
+}
+
 int parseArguments(int argc, char* argv[], gpioSetup *setup)
 {
 	// check for the correct number of arguments
@@ -19,11 +27,7 @@ int parseArguments(int argc, char* argv[], gpioSetup *setup)
 			argc != 5
 		) 
 	{
-		printf("Usage:\n");
-		printf("\t%s read <gpio>\n", argv[0]);
-		printf("\t%s set <gpio> <value>\n", argv[0]);
-		printf("\t%s pwm <gpio> <freq> <duty>\n", argv[0]);
-
+		printUsage(argv[0]);
 		return EXIT_FAILURE;
 	}
 
