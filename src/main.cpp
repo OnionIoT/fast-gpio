@@ -72,7 +72,7 @@ int gpioRun(gpioSetup* setup)
 
 	// object setup
 	gpioObj.SetVerbosity(FASTGPIO_VERBOSE);
-	gpioObj.SetFASTGPIO_DEBUGMode(FASTGPIO_DEBUG);
+	gpioObj.SetDebugMode(FASTGPIO_DEBUG);
 
 
 	// object operations	
@@ -109,7 +109,7 @@ int pwmRun(gpioSetup* setup)
 
 	// object setup
 	pwmObj.SetVerbosity(FASTGPIO_VERBOSE);
-	pwmObj.SetFASTGPIO_DEBUGMode(FASTGPIO_DEBUG);
+	pwmObj.SetDebugMode(FASTGPIO_DEBUG);
 
 
 	// object operations	
