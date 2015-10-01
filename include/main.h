@@ -12,8 +12,8 @@
 #include <fastpwm.h>
 
 
-#define VERBOSE		0
-#define	DEBUG 		0
+#define FASTGPIO_VERBOSE	0
+#define	FASTGPIO_DEBUG 		0
 
 #define PID_FILE	"/tmp/pin%d_pwm_pid"
 

@@ -13,12 +13,34 @@ Usage () {
 	echo ""
 }
 
+# convert hex to decimal
+#	argument 1 - hex value
+# 	returns hex via echo
+HexToDec () {
+	hex=$1
+
+	# check if hex has 0x at start
+	grep=`echo $hex | grep "0x"`
+
+
+	if [ "$grep" == "" ]; then
+		# add 0x 
+		hex=`echo $1 | sed -e 's/^/0x/'`
+	fi
+
+	# convert hex to decimal
+	dec=$(($hex))
+
+	# return the decimal value
+	echo "$dec"
+}
+
 # convert hex to duty cycle 
 #	argument 1 - hex value (expecting 0x12 format)
 # 	returns output via echo
 HexToDuty () {
 	# convert hex to decimal
-	decimal=$(($1))
+	decimal=$( HexToDec $1 )
 
 	# find the duty %
 	duty=$(($decimal*100/255))
@@ -72,34 +94,16 @@ hex=$1;
 
 #split into color components
 hex=`echo $hex | sed -e 's/0x//' `
-rHex=`echo $hex | sed -e 's/....$//' -e 's/^/0x/' `
-gHex=`echo $hex | sed -e 's/^..//' -e 's/..$//' -e 's/^/0x/' `
-bHex=`echo $hex | sed -e 's/^....//' -e 's/^/0x/' `
+rHex=`echo $hex | sed -e 's/....$//' `
+gHex=`echo $hex | sed -e 's/^..//' -e 's/..$//' `
+bHex=`echo $hex | sed -e 's/^....//' `
 
-#convert to decimal
-rDec=$(($rHex))
-gDec=$(($gHex))
-bDec=$(($bHex))
+rDuty=$(RgbHexToDuty $rHex)
+gDuty=$(RgbHexToDuty $gHex)
+bDuty=$(RgbHexToDuty $bHex)
 
-#convert to duty cycle
-rDuty=$(($rDec*100/255))
-gDuty=$(($gDec*100/255))
-bDuty=$(($bDec*100/255))
-
-#flip the duty cycle to account for active-low leds
-rDuty=$((100-$rDuty))
-gDuty=$((100-$gDuty))
-bDuty=$((100-$bDuty))
-
-rDuty2=$(RgbHexToDuty $rHex)
-gDuty2=$(RgbHexToDuty $gHex)
-bDuty2=$(RgbHexToDuty $bHex)
-
-
-echo "Colors: $rHex $gHex $bHex"
-echo "Colors: $rDec $gDec $bDec"
-echo "Colors: $rDuty $gDuty $bDuty"
-echo "Colors: $rDuty2 $gDuty2 $bDuty2"
+echo "Setting LEDs to: $hex"
+echo "Duty: $rDuty $gDuty $bDuty"
 
 #run the pwm
 fast-gpio pwm 17 200 $rDuty

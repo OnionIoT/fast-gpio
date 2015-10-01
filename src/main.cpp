@@ -71,14 +71,14 @@ int gpioRun(gpioSetup* setup)
 	FastGpio	gpioObj;
 
 	// object setup
-	gpioObj.SetVerbosity(VERBOSE);
-	gpioObj.SetDebugMode(DEBUG);
+	gpioObj.SetVerbosity(FASTGPIO_VERBOSE);
+	gpioObj.SetFASTGPIO_DEBUGMode(FASTGPIO_DEBUG);
 
 
 	// object operations	
 	switch (setup->cmd) {
 		case GPIO_CMD_SET:
-			if (VERBOSE > 0) printf("Setting GPIO%d to %d\n", setup->pinNumber, setup->pinValue);
+			if (FASTGPIO_VERBOSE > 0) printf("Setting GPIO%d to %d\n", setup->pinNumber, setup->pinValue);
 
 			gpioObj.SetDirection(setup->pinNumber, 1); // set to output
 			gpioObj.Set(setup->pinNumber, setup->pinValue);
@@ -86,7 +86,7 @@ int gpioRun(gpioSetup* setup)
 
 		case GPIO_CMD_READ:
 			gpioObj.Read(setup->pinNumber, setup->pinValue);
-			if (VERBOSE > 0) printf("Read GPIO%d: %d\n", setup->pinNumber, setup->pinValue);
+			if (FASTGPIO_VERBOSE > 0) printf("Read GPIO%d: %d\n", setup->pinNumber, setup->pinValue);
 			break;
 
 		default:
@@ -108,8 +108,8 @@ int pwmRun(gpioSetup* setup)
 	}
 
 	// object setup
-	pwmObj.SetVerbosity(VERBOSE);
-	pwmObj.SetDebugMode(DEBUG);
+	pwmObj.SetVerbosity(FASTGPIO_VERBOSE);
+	pwmObj.SetFASTGPIO_DEBUGMode(FASTGPIO_DEBUG);
 
 
 	// object operations	
@@ -161,9 +161,9 @@ int killOldProcess(int pinNum)
 		// kill the process
 		if (pid > 0)
 		{
-			sprintf(cmd, "kill %d", pid);
+			sprintf(cmd, "kill %d >& /dev/null", pid);
 			system(cmd);
-			printf("Exiting current pwm process (pid: %d)\n", pid);
+			if (FASTGPIO_VERBOSE) printf("Exiting current pwm process (pid: %d)\n", pid);
 		}
 	}
 
@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
 		}
 		else {
 			// parent process
-			if (VERBOSE > 0) printf("Launched child pwm process, pid: %d \n", pid);
+			if (FASTGPIO_VERBOSE > 0) printf("Launched child pwm process, pid: %d \n", pid);
 			noteChildPid(setup->pinNumber, pid);
 		}
 	}
