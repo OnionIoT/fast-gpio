@@ -111,7 +111,7 @@ int gpioRun(gpioSetup* setup)
 
 		case GPIO_CMD_GET_DIRECTION:
 			gpioObj.GetDirection(setup->pinNumber, setup->pinDir); // find pin direction
-			printf("GPIO%d direction is \n", setup->pinNumber, (setup->pinDir == 1 ? "OUTPUT" : "INPUT") );
+			printf("GPIO%d direction is %s\n", setup->pinNumber, (setup->pinDir == 1 ? "OUTPUT" : "INPUT") );
 			break;
 
 		default:
