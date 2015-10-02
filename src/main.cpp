@@ -5,6 +5,7 @@ void initGpioSetup (gpioSetup* obj)
 {
 	obj->pinNumber	= -1;
 	obj->pinValue	= 0;
+	obj->pinDir		= 0;
 	
 	obj->bPwm		= 0;
 	obj->pwmFreq	= 0;
@@ -13,6 +14,9 @@ void initGpioSetup (gpioSetup* obj)
 
 void printUsage(char* progName) {
 	printf("Usage:\n");
+	printf("\t%s set-input <gpio>\n", progName);
+	printf("\t%s set-output <gpio>\n", progName);
+	printf("\t%s get-direction <gpio>\n", progName);
 	printf("\t%s read <gpio>\n", progName);
 	printf("\t%s set <gpio> <value: 0 or 1>\n", progName);
 	printf("\t%s pwm <gpio> <freq in Hz> <duty cycle percentage>\n", progName);
@@ -38,7 +42,18 @@ int parseArguments(int argc, char* argv[], gpioSetup *setup)
 	//	arg1 - command: read, set
 	// 	arg2 - gpio pin number
 	// 	arg3 - value to write in case of set
-	if (strcmp(argv[1], "set") == 0 )	{
+	if (strcmp(argv[1], "set-input") == 0 )	{
+		setup->cmd 	= GPIO_CMD_SET_DIRECTION;
+		setup->pinDir 	= 0;
+	}
+	else if (strcmp(argv[1], "set-output") == 0 )	{
+		setup->cmd 	= GPIO_CMD_SET_DIRECTION;
+		setup->pinDir 	= 1;
+	}
+	else if (strcmp(argv[1], "get-direction") == 0 )	{
+		setup->cmd 	= GPIO_CMD_GET_DIRECTION;
+	}
+	else if (strcmp(argv[1], "set") == 0 )	{
 		setup->cmd 	= GPIO_CMD_SET;
 
 		// get the write value
@@ -78,15 +93,25 @@ int gpioRun(gpioSetup* setup)
 	// object operations	
 	switch (setup->cmd) {
 		case GPIO_CMD_SET:
-			if (FASTGPIO_VERBOSE > 0) printf("Setting GPIO%d to %d\n", setup->pinNumber, setup->pinValue);
-
 			gpioObj.SetDirection(setup->pinNumber, 1); // set to output
 			gpioObj.Set(setup->pinNumber, setup->pinValue);
+
+			printf("Setting GPIO%d to %d\n", setup->pinNumber, setup->pinValue);
 			break;
 
 		case GPIO_CMD_READ:
 			gpioObj.Read(setup->pinNumber, setup->pinValue);
 			printf("Read GPIO%d: %d\n", setup->pinNumber, setup->pinValue);
+			break;
+
+		case GPIO_CMD_SET_DIRECTION:
+			gpioObj.SetDirection(setup->pinNumber, setup->pinDir); // set pin direction
+			printf("Setting GPIO%d to %s direction\n", setup->pinNumber, (setup->pinDir == 1 ? "OUTPUT" : "INPUT") );
+			break;
+
+		case GPIO_CMD_GET_DIRECTION:
+			gpioObj.GetDirection(setup->pinNumber, setup->pinDir); // find pin direction
+			printf("GPIO%d direction is \n", setup->pinNumber, (setup->pinDir == 1 ? "OUTPUT" : "INPUT") );
 			break;
 
 		default:

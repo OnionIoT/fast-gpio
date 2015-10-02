@@ -20,6 +20,7 @@ public:
 	~FastGpio(void);
 
 	int 	SetDirection	(int pinNum, int bOutput);
+	int 	GetDirection 	(int pinNum, int &bOutput);
 
 	int 	Set 			(int pinNum, int value);
 	int 	Read 			(int pinNum, int &value);

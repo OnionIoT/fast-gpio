@@ -31,6 +31,21 @@ int FastGpio::SetDirection(int pinNum, int bOutput)
 	return (EXIT_SUCCESS);
 }
 
+int FastGpio::GetDirection(int pinNum, int &bOutput)
+{
+	unsigned long int regVal;
+
+	// read the current input and output settings
+	regVal 	= _ReadReg(REGISTER_OE_OFFSET);
+	if (verbosityLevel > 0) printf("Direction setting read: 0x%08lx\n", regVal);
+
+	// find the OE for this pin
+	bOutput = _GetBit(regVal, pinNum);
+
+
+	return (EXIT_SUCCESS);
+}
+
 int FastGpio::Set(int pinNum, int value)
 {
 	unsigned long int 	regAddr;
@@ -63,7 +78,7 @@ int FastGpio::Read(int pinNum, int &value)
 	regVal 	= _ReadReg (REGISTER_IN_OFFSET);
 
 	// find the value of the specified pin
-	value = ((regVal >> pinNum) & 0x1);
+	value 	= _GetBit(regVal, pinNum);
 
 
 	return EXIT_SUCCESS;

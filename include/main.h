@@ -23,6 +23,8 @@
 typedef enum e_GpioCmd {
 	GPIO_CMD_SET = 0,
 	GPIO_CMD_READ,
+	GPIO_CMD_SET_DIRECTION,
+	GPIO_CMD_GET_DIRECTION,
 	GPIO_CMD_PWM,
 	NUM_GPIO_CMD
 } gpioCmd;
@@ -32,6 +34,7 @@ struct gpioSetup {
 
 	int 	pinNumber;
 	int 	pinValue;
+	int 	pinDir;		// 0 - input, 1 - output
 
 	// pwm options
 	int 	bPwm;

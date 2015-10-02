@@ -99,3 +99,14 @@ void Module::_SetBit(unsigned long int &regVal, int bitNum, int value)
 	// try this out
 	// regVal ^= (-value ^ regVal) & (1 << bitNum);
 }
+
+// find the value of a single bit
+int Module::_GetBit(unsigned long int regVal, int bitNum)
+{
+	int value;
+
+	// isolate the specific bit
+	value = ((regVal >> bitNum) & 0x1);
+
+	return (value);
+}
