@@ -54,6 +54,7 @@ int 	pwmRun				(gpioSetup* setup);
 
 int 	noteChildPid		(int pinNum, int pid);
 int 	killOldProcess		(int pinNum);
+int 	checkOldProcess		(gpioSetup *setup);
 
 
 

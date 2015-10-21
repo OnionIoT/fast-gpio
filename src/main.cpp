@@ -89,6 +89,10 @@ int gpioRun(gpioSetup* setup)
 	gpioObj.SetVerbosity(FASTGPIO_VERBOSE);
 	gpioObj.SetDebugMode(FASTGPIO_DEBUG);
 
+	// to do: add check for pwm
+	// check for any pwm processes already running on this pin
+	killOldProcess(setup->pinNumber);
+
 
 	// object operations	
 	switch (setup->cmd) {
@@ -196,6 +200,26 @@ int killOldProcess(int pinNum)
 	return EXIT_SUCCESS;
 }
 
+// function to kill any old processes, based on which command is being run
+int checkOldProcess(gpioSetup *setup)
+{
+	switch (setup->cmd) {
+		case GPIO_CMD_SET:
+		case GPIO_CMD_SET_DIRECTION:
+		case GPIO_CMD_PWM:
+			// kill the old process
+			killOldProcess(setup->pinNumber);
+			break;
+
+		default:
+			// do nothing
+			break;
+	}
+
+	return EXIT_SUCCESS;
+}
+
+
 int main(int argc, char* argv[])
 {
 	int status;
@@ -206,6 +230,9 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
+	// check for any pwm processes already running on this pin
+	status = checkOldProcess(setup);
+
 	// run the command
 	if (setup->cmd != GPIO_CMD_PWM) {
 		// single gpio command
@@ -213,8 +240,6 @@ int main(int argc, char* argv[])
 	}
 	else {
 		//// continuous gpio commands, need another process
-		// check for any pwm processes already running on this pin
-		killOldProcess(setup->pinNumber);
 
 		// create the new process
 		pid_t pid = fork();
