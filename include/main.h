@@ -12,10 +12,27 @@
 #include <fastpwm.h>
 
 
+#define FASTGPIO_VERBOSITY_QUIET		(0)
+#define FASTGPIO_VERBOSITY_NORMAL		(1)
+#define FASTGPIO_VERBOSITY_ALL			(2)
+#define FASTGPIO_VERBOSITY_JSON			(3)
+
+#define FASTGPIO_DEFAULT_VERBOSITY		(FASTGPIO_VERBOSITY_NORMAL)
+#define FASTGPIO_DEFAULT_DEBUG			(0)
+
 #define FASTGPIO_VERBOSE	0
 #define	FASTGPIO_DEBUG 		0
 
 #define PID_FILE	"/tmp/pin%d_pwm_pid"
+
+#define FASTGPIO_STDOUT_STRING			"> %s GPIO%d: %s\n"
+#define FASTGPIO_JSON_STRING			"{\"cmd\":\"%s\", \"pin\":%d, \"val\":\"%s\"}\n"
+
+#define FASTGPIO_CMD_STRING_SET			"Set"
+#define FASTGPIO_CMD_STRING_READ		"Read"
+#define FASTGPIO_CMD_STRING_SET_DIR		"Set direction"
+#define FASTGPIO_CMD_STRING_GET_DIR		"Get direction"
+#define FASTGPIO_CMD_STRING_PWM			"Set PWM" 
 
 
 
@@ -31,6 +48,7 @@ typedef enum e_GpioCmd {
 
 struct gpioSetup {
 	gpioCmd cmd; 
+	char*	cmdString;
 
 	int 	pinNumber;
 	int 	pinValue;
@@ -40,14 +58,18 @@ struct gpioSetup {
 	int 	bPwm;
 	int 	pwmFreq;
 	int 	pwmDuty;
+
+	// general options
+	int 	verbose;
+	int 	debug;
 };
 
 
 // function definitions
 void 	initGpioSetup 		(gpioSetup* obj);
 
-void 	printUsage			(char* progName);
-int 	parseArguments		(int argc, char* argv[], gpioSetup *setup);
+void 	usage				(const char* progName);
+int 	parseArguments		(const char* progName, int argc, char* argv[], gpioSetup *setup);
 
 int 	gpioRun				(gpioSetup* setup);
 int 	pwmRun				(gpioSetup* setup);
