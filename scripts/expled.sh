@@ -49,6 +49,21 @@ echo "Setting LEDs to: $hex"
 echo "Duty: $rDuty $gDuty $bDuty"
 
 #run the pwm
-fast-gpio pwm 17 200 $rDuty
-fast-gpio pwm 16 200 $gDuty
-fast-gpio pwm 15 200 $bDuty
+#run the pwm                  
+if [ $rHex != "00" ]; then        
+        fast-gpio pwm 17 200 $rDuty;  
+else                                             
+        fast-gpio set 17 1            
+fi;                                              
+                                      
+if [ $gHex != "00" ]; then    
+        fast-gpio pwm 16 200 $gDuty;
+else                          
+        fast-gpio set 16 1          
+fi;                              
+                            
+if [ $bHex != "00" ]; then       
+        fast-gpio pwm 15 200 $bDuty;
+else                      
+        fast-gpio set 15 1          
+fi;             
