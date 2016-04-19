@@ -52,3 +52,5 @@ echo "Duty: $rDuty $gDuty $bDuty"
 fast-gpio pwm 17 200 $rDuty
 fast-gpio pwm 16 200 $gDuty
 fast-gpio pwm 15 200 $bDuty
+
+
