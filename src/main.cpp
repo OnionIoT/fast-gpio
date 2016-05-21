@@ -25,6 +25,7 @@ void usage(const char* progName) {
 	printf("\t%s read <gpio>\n", progName);
 	printf("\t%s set <gpio> <value: 0 or 1>\n", progName);
 	printf("\t%s pwm <gpio> <freq in Hz> <duty cycle percentage>\n", progName);
+	printf("\t%s pulses <gpio>\n",progName);
 	printf("\n");
 }
 
@@ -86,6 +87,11 @@ int parseArguments(const char* progName, int argc, char* argv[], gpioSetup *setu
 		setup->cmd 		= GPIO_CMD_READ;
 		strcpy(setup->cmdString, FASTGPIO_CMD_STRING_READ);
 	}
+	else if (strncmp(argv[0], "pulses", strlen("pulses") ) == 0 )	{
+		setup->cmd 		= GPIO_CMD_PULSES;
+		strcpy(setup->cmdString, FASTGPIO_CMD_STRING_PULSES);
+	}
+
 	else if (strncmp(argv[0], "pwm", strlen("pwm") ) == 0 )	{
 		setup->cmd 	= GPIO_CMD_PWM;
 		strcpy(setup->cmdString, FASTGPIO_CMD_STRING_PWM);
@@ -143,6 +149,9 @@ int gpioRun(gpioSetup* setup)
 		case GPIO_CMD_GET_DIRECTION:
 			gpioObj.GetDirection(setup->pinNumber, setup->pinDir); // find pin direction
 			strcpy(valString, (setup->pinDir == 1 ? "output" : "input") );
+			break;
+		case GPIO_CMD_PULSES:
+			pulseGpio(&gpioObj,setup->pinNumber);
 			break;
 
 		default:
@@ -255,6 +264,19 @@ int checkOldProcess(gpioSetup *setup)
 	return EXIT_SUCCESS;
 }
 
+
+int pulseGpio(FastGpio *gpioObj,int pinNum)
+{
+	gpioObj->SetDirection(pinNum,1);
+	for (int i = 0; i < 100 ; i++)
+	{
+		gpioObj->Set(pinNum,1);
+		usleep(1000000);
+		gpioObj->Set(pinNum,0);
+		usleep(1000000);
+
+	}
+}
 
 int main(int argc, char* argv[])
 {
