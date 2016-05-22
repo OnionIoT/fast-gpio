@@ -265,17 +265,85 @@ int checkOldProcess(gpioSetup *setup)
 }
 
 
+void pulse(FastGpio *gpioObj,int pinNum,int highMicros, int lowMicros)
+{
+	gpioObj->Set(pinNum,1);
+	usleep(highMicros);
+	gpioObj->Set(pinNum,0);
+	usleep(lowMicros);
+}
+
+void SendCodeGate(FastGpio *gpioObj,int pinNum)
+{
+		pulse(gpioObj,pinNum, 2616,808);
+		pulse(gpioObj,pinNum, 472,812);
+		pulse(gpioObj,pinNum, 468,816);
+		pulse(gpioObj,pinNum, 468,808);
+		pulse(gpioObj,pinNum, 476,808);
+		pulse(gpioObj,pinNum, 476,808);
+		pulse(gpioObj,pinNum, 468,816);
+		pulse(gpioObj,pinNum, 468,812);
+		pulse(gpioObj,pinNum, 468,388);
+		pulse(gpioObj,pinNum, 900,812);
+		pulse(gpioObj,pinNum, 472,812);
+		pulse(gpioObj,pinNum, 472,384);
+		pulse(gpioObj,pinNum, 900,812);
+		pulse(gpioObj,pinNum, 472,808);
+		pulse(gpioObj,pinNum, 472,384);
+		pulse(gpioObj,pinNum, 900,812);
+		pulse(gpioObj,pinNum, 472,808);
+		pulse(gpioObj,pinNum, 476,380);
+		pulse(gpioObj,pinNum, 900,384);
+		pulse(gpioObj,pinNum, 900,816);
+		pulse(gpioObj,pinNum, 472,808);
+		pulse(gpioObj,pinNum, 468,812);
+		pulse(gpioObj,pinNum, 472,384);
+		pulse(gpioObj,pinNum, 904,812);
+		pulse(gpioObj,pinNum, 464,388);
+		pulse(gpioObj,pinNum, 900,812);
+		pulse(gpioObj,pinNum, 472,380);
+		pulse(gpioObj,pinNum, 904,812);
+		pulse(gpioObj,pinNum, 472,388);
+		pulse(gpioObj,pinNum, 896,812);
+		pulse(gpioObj,pinNum, 468,812);
+		pulse(gpioObj,pinNum, 476,808);
+		pulse(gpioObj,pinNum, 476,808);
+		pulse(gpioObj,pinNum, 472,812);
+		pulse(gpioObj,pinNum, 472,808);
+		pulse(gpioObj,pinNum, 472,812);
+		pulse(gpioObj,pinNum, 472,816);
+		pulse(gpioObj,pinNum, 468,384);
+		pulse(gpioObj,pinNum, 900,812);
+		pulse(gpioObj,pinNum, 468,388);
+		pulse(gpioObj,pinNum, 900,384);
+		pulse(gpioObj,pinNum, 904,812);
+		pulse(gpioObj,pinNum, 472,808);
+		pulse(gpioObj,pinNum, 472,384);
+		pulse(gpioObj,pinNum, 904,380);
+		pulse(gpioObj,pinNum, 900,388);
+		pulse(gpioObj,pinNum, 900,812);
+		pulse(gpioObj,pinNum, 468,388);
+		pulse(gpioObj,pinNum, 900,812);
+		pulse(gpioObj,pinNum, 468,816);
+		pulse(gpioObj,pinNum, 464,816);
+		pulse(gpioObj,pinNum, 468,388);
+		pulse(gpioObj,pinNum, 900,8004);	
+}
+
+
+
 int pulseGpio(FastGpio *gpioObj,int pinNum)
 {
 	gpioObj->SetDirection(pinNum,1);
-	for (int i = 0; i < 100 ; i++)
-	{
-		gpioObj->Set(pinNum,1);
-		usleep(1000000);
-		gpioObj->Set(pinNum,0);
-		usleep(1000000);
 
+	for (int i = 0; i < 20; i++)
+	{
+		SendCodeGate(gpioObj,pinNum);
 	}
+
+
+
+
 }
 
 int main(int argc, char* argv[])
