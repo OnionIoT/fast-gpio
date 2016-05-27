@@ -61,6 +61,10 @@ struct gpioSetup {
 	int 	pwmFreq;
 	int 	pwmDuty;
 
+	// pulses options
+	char*   pathPulsesFile;
+	int     repeats;
+
 	// general options
 	int 	verbose;
 	int 	debug;
@@ -80,7 +84,7 @@ int 	noteChildPid		(int pinNum, int pid);
 int 	killOldProcess		(int pinNum);
 int 	checkOldProcess		(gpioSetup *setup);
 
-int     pulseGpio            (FastGpio *gpioObj,int pinNum);
+int pulseGpio(FastGpio *gpioObj,int pinNum, char* pathToFile, int repeats);
 
 
 

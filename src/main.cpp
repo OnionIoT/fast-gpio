@@ -1,6 +1,5 @@
 #include <main.h>
 
-
 void initGpioSetup (gpioSetup* obj)
 {
 	obj->pinNumber	= -1;
@@ -25,7 +24,7 @@ void usage(const char* progName) {
 	printf("\t%s read <gpio>\n", progName);
 	printf("\t%s set <gpio> <value: 0 or 1>\n", progName);
 	printf("\t%s pwm <gpio> <freq in Hz> <duty cycle percentage>\n", progName);
-	printf("\t%s pulses <gpio>\n",progName);
+	printf("\t%s pulses <gpio> <path_pulses_file> <repeats>\n",progName);
 	printf("\n");
 }
 
@@ -90,6 +89,9 @@ int parseArguments(const char* progName, int argc, char* argv[], gpioSetup *setu
 	else if (strncmp(argv[0], "pulses", strlen("pulses") ) == 0 )	{
 		setup->cmd 		= GPIO_CMD_PULSES;
 		strcpy(setup->cmdString, FASTGPIO_CMD_STRING_PULSES);
+		// get the path to the pulses file and repeat number
+		setup->pathPulsesFile = argv[2];
+		setup->repeats = atoi(argv[3]);
 	}
 
 	else if (strncmp(argv[0], "pwm", strlen("pwm") ) == 0 )	{
@@ -151,7 +153,7 @@ int gpioRun(gpioSetup* setup)
 			strcpy(valString, (setup->pinDir == 1 ? "output" : "input") );
 			break;
 		case GPIO_CMD_PULSES:
-			pulseGpio(&gpioObj,setup->pinNumber);
+			pulseGpio(&gpioObj,setup->pinNumber,setup->pathPulsesFile,setup->repeats);
 			break;
 
 		default:
@@ -273,75 +275,49 @@ void pulse(FastGpio *gpioObj,int pinNum,int highMicros, int lowMicros)
 	usleep(lowMicros);
 }
 
-void SendCodeGate(FastGpio *gpioObj,int pinNum)
-{
-		pulse(gpioObj,pinNum, 2616,808);
-		pulse(gpioObj,pinNum, 472,812);
-		pulse(gpioObj,pinNum, 468,816);
-		pulse(gpioObj,pinNum, 468,808);
-		pulse(gpioObj,pinNum, 476,808);
-		pulse(gpioObj,pinNum, 476,808);
-		pulse(gpioObj,pinNum, 468,816);
-		pulse(gpioObj,pinNum, 468,812);
-		pulse(gpioObj,pinNum, 468,388);
-		pulse(gpioObj,pinNum, 900,812);
-		pulse(gpioObj,pinNum, 472,812);
-		pulse(gpioObj,pinNum, 472,384);
-		pulse(gpioObj,pinNum, 900,812);
-		pulse(gpioObj,pinNum, 472,808);
-		pulse(gpioObj,pinNum, 472,384);
-		pulse(gpioObj,pinNum, 900,812);
-		pulse(gpioObj,pinNum, 472,808);
-		pulse(gpioObj,pinNum, 476,380);
-		pulse(gpioObj,pinNum, 900,384);
-		pulse(gpioObj,pinNum, 900,816);
-		pulse(gpioObj,pinNum, 472,808);
-		pulse(gpioObj,pinNum, 468,812);
-		pulse(gpioObj,pinNum, 472,384);
-		pulse(gpioObj,pinNum, 904,812);
-		pulse(gpioObj,pinNum, 464,388);
-		pulse(gpioObj,pinNum, 900,812);
-		pulse(gpioObj,pinNum, 472,380);
-		pulse(gpioObj,pinNum, 904,812);
-		pulse(gpioObj,pinNum, 472,388);
-		pulse(gpioObj,pinNum, 896,812);
-		pulse(gpioObj,pinNum, 468,812);
-		pulse(gpioObj,pinNum, 476,808);
-		pulse(gpioObj,pinNum, 476,808);
-		pulse(gpioObj,pinNum, 472,812);
-		pulse(gpioObj,pinNum, 472,808);
-		pulse(gpioObj,pinNum, 472,812);
-		pulse(gpioObj,pinNum, 472,816);
-		pulse(gpioObj,pinNum, 468,384);
-		pulse(gpioObj,pinNum, 900,812);
-		pulse(gpioObj,pinNum, 468,388);
-		pulse(gpioObj,pinNum, 900,384);
-		pulse(gpioObj,pinNum, 904,812);
-		pulse(gpioObj,pinNum, 472,808);
-		pulse(gpioObj,pinNum, 472,384);
-		pulse(gpioObj,pinNum, 904,380);
-		pulse(gpioObj,pinNum, 900,388);
-		pulse(gpioObj,pinNum, 900,812);
-		pulse(gpioObj,pinNum, 468,388);
-		pulse(gpioObj,pinNum, 900,812);
-		pulse(gpioObj,pinNum, 468,816);
-		pulse(gpioObj,pinNum, 464,816);
-		pulse(gpioObj,pinNum, 468,388);
-		pulse(gpioObj,pinNum, 900,8004);	
-}
 
-
-
-int pulseGpio(FastGpio *gpioObj,int pinNum)
+int pulseGpio(FastGpio *gpioObj,int pinNum, char* pathToFile, int repeats)
 {
 	gpioObj->SetDirection(pinNum,1);
 
-	for (int i = 0; i < 20; i++)
+	FILE * pFile;
+	pFile = fopen (pathToFile,"r");
+	// Max pulses is 100
+	int* upTimes = new int[200];
+	int* downTimes = new int[200];
+	int* pUpTimes = upTimes;
+	int* pDownTimes = downTimes;
+
+	// Load data from the file
+	if (pFile != NULL)
 	{
-		SendCodeGate(gpioObj,pinNum);
+		while (fscanf(pFile, "%d,%d\n", pUpTimes,pDownTimes) != EOF)
+		{
+			pUpTimes++;
+			pDownTimes++;
+		}
+		fclose (pFile);
 	}
 
+	int i = 0;
+	while (repeats-- > 0)
+	{
+		// Play the code
+		pUpTimes = upTimes;
+		pDownTimes = downTimes;
+		i = 0;
+		while ((*pUpTimes != 0) && (i++ < 200))
+		{
+			// printf("Pulsing Up Time: %d, Down Time: %d\n",*pUpTimes,*pDownTimes);
+			pulse(gpioObj,pinNum,*pUpTimes,*pDownTimes);
 
+			pUpTimes++;
+			pDownTimes++;
+		}
+	}
+
+	delete[] upTimes;
+	delete[] downTimes;
 
 
 }
