@@ -282,7 +282,7 @@ int pulseGpio(FastGpio *gpioObj,int pinNum, char* pathToFile, int repeats)
 
 	FILE * pFile;
 	pFile = fopen (pathToFile,"r");
-	// Max pulses is 100
+	// Max code size is 200 
 	int* upTimes = new int[200];
 	int* downTimes = new int[200];
 	int* pUpTimes = upTimes;
@@ -291,22 +291,27 @@ int pulseGpio(FastGpio *gpioObj,int pinNum, char* pathToFile, int repeats)
 	// Load data from the file
 	if (pFile != NULL)
 	{
-		while (fscanf(pFile, "%d,%d\n", pUpTimes,pDownTimes) != EOF)
+		int i = 0;
+
+		while ((fscanf(pFile, "%d,%d\n", pUpTimes,pDownTimes) != EOF) && (i++ < 200))
 		{
 			pUpTimes++;
 			pDownTimes++;
 		}
 		fclose (pFile);
 	}
+	else
+	{
+		printf("Error opening the file\n");
+		return 1;
+	}
 
-	int i = 0;
+	// Play the code 
 	while (repeats-- > 0)
 	{
-		// Play the code
 		pUpTimes = upTimes;
 		pDownTimes = downTimes;
-		i = 0;
-		while ((*pUpTimes != 0) && (i++ < 200))
+		while (*pUpTimes != 0)
 		{
 			// printf("Pulsing Up Time: %d, Down Time: %d\n",*pUpTimes,*pDownTimes);
 			pulse(gpioObj,pinNum,*pUpTimes,*pDownTimes);
