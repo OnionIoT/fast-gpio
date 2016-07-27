@@ -33,6 +33,7 @@
 #define FASTGPIO_CMD_STRING_SET_DIR		"Set direction"
 #define FASTGPIO_CMD_STRING_GET_DIR		"Get direction"
 #define FASTGPIO_CMD_STRING_PWM			"Set PWM" 
+#define FASTGPIO_CMD_STRING_PULSES   	"Pulses"
 
 
 
@@ -43,6 +44,7 @@ typedef enum e_GpioCmd {
 	GPIO_CMD_SET_DIRECTION,
 	GPIO_CMD_GET_DIRECTION,
 	GPIO_CMD_PWM,
+	GPIO_CMD_PULSES,
 	NUM_GPIO_CMD
 } gpioCmd;
 
@@ -58,6 +60,10 @@ struct gpioSetup {
 	int 	bPwm;
 	int 	pwmFreq;
 	int 	pwmDuty;
+
+	// pulses options
+	char*   pathPulsesFile;
+	int     repeats;
 
 	// general options
 	int 	verbose;
@@ -77,6 +83,8 @@ int 	pwmRun				(gpioSetup* setup);
 int 	noteChildPid		(int pinNum, int pid);
 int 	killOldProcess		(int pinNum);
 int 	checkOldProcess		(gpioSetup *setup);
+
+int pulseGpio(FastGpio *gpioObj,int pinNum, char* pathToFile, int repeats);
 
 
 

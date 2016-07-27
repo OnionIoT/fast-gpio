@@ -1,6 +1,5 @@
 #include <main.h>
 
-
 void initGpioSetup (gpioSetup* obj)
 {
 	obj->pinNumber	= -1;
@@ -25,6 +24,7 @@ void usage(const char* progName) {
 	printf("\t%s read <gpio>\n", progName);
 	printf("\t%s set <gpio> <value: 0 or 1>\n", progName);
 	printf("\t%s pwm <gpio> <freq in Hz> <duty cycle percentage>\n", progName);
+	printf("\t%s pulses <gpio> <path_pulses_file> <repeats>\n",progName);
 	printf("\n");
 }
 
@@ -86,6 +86,14 @@ int parseArguments(const char* progName, int argc, char* argv[], gpioSetup *setu
 		setup->cmd 		= GPIO_CMD_READ;
 		strcpy(setup->cmdString, FASTGPIO_CMD_STRING_READ);
 	}
+	else if (strncmp(argv[0], "pulses", strlen("pulses") ) == 0 )	{
+		setup->cmd 		= GPIO_CMD_PULSES;
+		strcpy(setup->cmdString, FASTGPIO_CMD_STRING_PULSES);
+		// get the path to the pulses file and repeat number
+		setup->pathPulsesFile = argv[2];
+		setup->repeats = atoi(argv[3]);
+	}
+
 	else if (strncmp(argv[0], "pwm", strlen("pwm") ) == 0 )	{
 		setup->cmd 	= GPIO_CMD_PWM;
 		strcpy(setup->cmdString, FASTGPIO_CMD_STRING_PWM);
@@ -143,6 +151,9 @@ int gpioRun(gpioSetup* setup)
 		case GPIO_CMD_GET_DIRECTION:
 			gpioObj.GetDirection(setup->pinNumber, setup->pinDir); // find pin direction
 			strcpy(valString, (setup->pinDir == 1 ? "output" : "input") );
+			break;
+		case GPIO_CMD_PULSES:
+			pulseGpio(&gpioObj,setup->pinNumber,setup->pathPulsesFile,setup->repeats);
 			break;
 
 		default:
@@ -255,6 +266,66 @@ int checkOldProcess(gpioSetup *setup)
 	return EXIT_SUCCESS;
 }
 
+
+void pulse(FastGpio *gpioObj,int pinNum,int highMicros, int lowMicros)
+{
+	gpioObj->Set(pinNum,1);
+	usleep(highMicros);
+	gpioObj->Set(pinNum,0);
+	usleep(lowMicros);
+}
+
+
+int pulseGpio(FastGpio *gpioObj,int pinNum, char* pathToFile, int repeats)
+{
+	gpioObj->SetDirection(pinNum,1);
+
+	FILE * pFile;
+	pFile = fopen (pathToFile,"r");
+	// Max code size is 200 
+	int* upTimes = new int[200];
+	int* downTimes = new int[200];
+	int* pUpTimes = upTimes;
+	int* pDownTimes = downTimes;
+
+	// Load data from the file
+	if (pFile != NULL)
+	{
+		int i = 0;
+
+		while ((fscanf(pFile, "%d,%d\n", pUpTimes,pDownTimes) != EOF) && (i++ < 200))
+		{
+			pUpTimes++;
+			pDownTimes++;
+		}
+		fclose (pFile);
+	}
+	else
+	{
+		printf("Error opening the file\n");
+		return 1;
+	}
+
+	// Play the code 
+	while (repeats-- > 0)
+	{
+		pUpTimes = upTimes;
+		pDownTimes = downTimes;
+		while (*pUpTimes != 0)
+		{
+			// printf("Pulsing Up Time: %d, Down Time: %d\n",*pUpTimes,*pDownTimes);
+			pulse(gpioObj,pinNum,*pUpTimes,*pDownTimes);
+
+			pUpTimes++;
+			pDownTimes++;
+		}
+	}
+
+	delete[] upTimes;
+	delete[] downTimes;
+
+
+}
 
 int main(int argc, char* argv[])
 {
