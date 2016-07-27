@@ -66,4 +66,6 @@ if [ $bHex != "00" ]; then
 else                      
         fast-gpio set 15 1          
 fi;             
->>>>>>> 39debc7efabed7bde62fc1d00a5309386e323665
+
+
+
