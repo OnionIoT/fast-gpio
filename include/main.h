@@ -11,6 +11,8 @@
 #include <fastgpio.h>
 #include <fastpwm.h>
 
+#include <fastgpioomega.h>
+#include <fastgpioomega2.h>
 
 #define FASTGPIO_VERBOSITY_QUIET		(0)
 #define FASTGPIO_VERBOSITY_NORMAL		(1)

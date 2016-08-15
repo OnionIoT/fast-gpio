@@ -38,7 +38,7 @@ protected:
 	int				verbosityLevel;
 	int 			debugLevel;
 
-	volatile unsigned long int *regAddress;
+	unsigned long int *regAddress;
 };
 
 #endif 	// _MODULE_H_

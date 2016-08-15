@@ -41,23 +41,21 @@ void Module::SetDebugMode (bool input)
 int Module::_SetupAddress(unsigned long int blockBaseAddr, unsigned long int blockSize)
 {
 	int  m_mfd;
-
+	int page_size;
 	if (debugLevel == 0)
 	{
 		if ((m_mfd = open("/dev/mem", O_RDWR)) < 0)
 		{
 			return EXIT_FAILURE;	// maybe return -1
 		}
-
-		regAddress = (unsigned long*)mmap	(	NULL, 
-												blockSize, 
+		regAddress = (unsigned long int*)mmap	(	NULL, 
+												1024, 
 												PROT_READ|PROT_WRITE, 
-												MAP_SHARED, 
+												MAP_FILE|MAP_SHARED, 
 												m_mfd, 
 												blockBaseAddr
 											);
 		close(m_mfd);
-
 		if (regAddress == MAP_FAILED)
 		{
 			return EXIT_FAILURE;	// maybe return -2
@@ -77,7 +75,6 @@ void Module::_WriteReg(unsigned long int registerOffset, unsigned long int value
 unsigned long int Module::_ReadReg(unsigned long int registerOffset)
 {
 	unsigned long int 	value = 0x0;
-
 	// read the value 
 	value = *(regAddress + registerOffset);
 

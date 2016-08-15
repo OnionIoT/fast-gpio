@@ -3,6 +3,12 @@
 FastPwm::FastPwm(void)
 {
 	Reset();
+	
+	if (strcmp(DEVICE_TYPE, "omega") == 0) {
+		gpio = new FastGpioOmega();
+	} else {
+		gpio = new FastGpioOmega2();
+	}
 }
 
 FastPwm::FastPwm(int freq, int duty)
@@ -11,6 +17,13 @@ FastPwm::FastPwm(int freq, int duty)
 	
 	// setup the pwm info
 	_SetupPeriods(freq, duty);
+	//Instantiate the GPIO object
+		// object setup
+	if (strcmp(DEVICE_TYPE, "omega") == 0) {
+		gpio = new FastGpioOmega();
+	} else {
+		gpio = new FastGpioOmega2();
+	}
 }
 
 FastPwm::~FastPwm(void)
@@ -74,16 +87,16 @@ void FastPwm::Pwm (int pinNum, int freq, int duty)
 void FastPwm::_Pwm (int pinNum)
 {
 	// set the pin to output
-	gpio.SetDirection(pinNum, 1);
+	gpio->SetDirection(pinNum, 1);
 
 	// start the loop
 	while (1) {
 		//// HIGH part of cycle
-		gpio.Set(pinNum, 1);
+		gpio->Set(pinNum, 1);
 		_Sleep(periodHigh);
 
 		// LOW part of cycle
-		gpio.Set(pinNum, 0);
+		gpio->Set(pinNum, 0);
 		_Sleep(periodLow);
 	}
 }

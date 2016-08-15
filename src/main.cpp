@@ -122,38 +122,44 @@ int parseArguments(const char* progName, int argc, char* argv[], gpioSetup *setu
 int gpioRun(gpioSetup* setup)
 {
 	int status	= EXIT_SUCCESS;
-	FastGpio	gpioObj;
+	FastGpio	* gpioObj;
+		// object setup
+	if (strcmp(DEVICE_TYPE, "omega") == 0) {
+		gpioObj = new FastGpioOmega();
+	} else {
+		gpioObj = new FastGpioOmega2();
+	}
 	char* 		valString = new char[255];
-
+	// Modify here to point to Omega or Omega2 Object. 
 	// object setup
-	gpioObj.SetVerbosity(setup->verbose == FASTGPIO_VERBOSITY_ALL ? 1 : 0);
-	gpioObj.SetDebugMode(setup->debug);
+	gpioObj->SetVerbosity(setup->verbose == FASTGPIO_VERBOSITY_ALL ? 1 : 0);
+	gpioObj->SetDebugMode(setup->debug);
 
 	// object operations	
 	switch (setup->cmd) {
 		case GPIO_CMD_SET:
-			gpioObj.SetDirection(setup->pinNumber, 1); // set to output
-			gpioObj.Set(setup->pinNumber, setup->pinValue);
+			gpioObj->SetDirection(setup->pinNumber, 1); // set to output
+			gpioObj->Set(setup->pinNumber, setup->pinValue);
 
 			strcpy(valString, (setup->pinValue == 1 ? "1" : "0") );
 			break;
 
 		case GPIO_CMD_READ:
-			gpioObj.Read(setup->pinNumber, setup->pinValue);
+			gpioObj->Read(setup->pinNumber, setup->pinValue);
 			strcpy(valString, (setup->pinValue == 1 ? "1" : "0") );
 			break;
 
 		case GPIO_CMD_SET_DIRECTION:
-			gpioObj.SetDirection(setup->pinNumber, setup->pinDir); // set pin direction
+			gpioObj->SetDirection(setup->pinNumber, setup->pinDir); // set pin direction
 			strcpy(valString, (setup->pinDir == 1 ? "output" : "input") );
 			break;
 
 		case GPIO_CMD_GET_DIRECTION:
-			gpioObj.GetDirection(setup->pinNumber, setup->pinDir); // find pin direction
+			gpioObj->GetDirection(setup->pinNumber, setup->pinDir); // find pin direction
 			strcpy(valString, (setup->pinDir == 1 ? "output" : "input") );
 			break;
 		case GPIO_CMD_PULSES:
-			pulseGpio(&gpioObj,setup->pinNumber,setup->pathPulsesFile,setup->repeats);
+			pulseGpio(gpioObj,setup->pinNumber,setup->pathPulsesFile,setup->repeats);
 			break;
 
 		default:
@@ -172,7 +178,7 @@ int gpioRun(gpioSetup* setup)
 
 // function to run pwm commands
 int pwmRun(gpioSetup* setup)
-{
+{	//Gotta change this to either reference the Omega or Omega 2 object
 	FastPwm		pwmObj;
 	char* 		valString = new char[255];
 

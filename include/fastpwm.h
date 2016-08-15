@@ -3,7 +3,8 @@
 
 #include <module.h>
 #include <fastgpio.h>
-
+#include <fastgpioomega.h>
+#include <fastgpioomega2.h>
 #include <unistd.h>
 
 
@@ -31,7 +32,12 @@ private:
 	void 	_Pwm 			(int pinNum);
 
 	// private members
-	FastGpio 	gpio;
+	// The way it was before
+	// FastGpio 	gpio;
+
+	//Create a pointer to the base class
+	//Instantiate it in the constructor
+	FastGpio * gpio;
 
 	int 		bSetup;
 	double		freq;
