@@ -3,11 +3,10 @@
 FastPwm::FastPwm(void)
 {
 	Reset();
-	
-	if (strcmp(DEVICE_TYPE, "omega") == 0) {
-		gpio = new FastGpioOmega();
-	} else {
+	if (strcmp(DEVICE_TYPE, "ramips") == 0) {
 		gpio = new FastGpioOmega2();
+	} else {
+		gpio = new FastGpioOmega();
 	}
 }
 
@@ -19,10 +18,10 @@ FastPwm::FastPwm(int freq, int duty)
 	_SetupPeriods(freq, duty);
 	//Instantiate the GPIO object
 		// object setup
-	if (strcmp(DEVICE_TYPE, "omega") == 0) {
-		gpio = new FastGpioOmega();
-	} else {
+	if (strcmp(DEVICE_TYPE, "ramips") == 0) {
 		gpio = new FastGpioOmega2();
+	} else {
+		gpio = new FastGpioOmega();
 	}
 }
 

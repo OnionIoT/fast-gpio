@@ -16,7 +16,7 @@
 
 //Define DEVICE_TYPE Here for now. 
 
-#define DEVICE_TYPE			"omega2"
+// #define DEVICE_TYPE			"omega2"
 
 class FastGpio : public Module {
 public:
