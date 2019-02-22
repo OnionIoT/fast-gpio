@@ -275,13 +275,13 @@ void pulse(FastGpio *gpioObj,int pinNum,int highMicros, int lowMicros)
 
 int pulseGpio(FastGpio *gpioObj,int pinNum, char* pathToFile, int repeats)
 {
+	const int MAX_CODE_SIZE = 200;
 	gpioObj->SetDirection(pinNum,1);
 
 	FILE * pFile;
 	pFile = fopen (pathToFile,"r");
-	// Max code size is 200 
-	int upTimes[200];
-	int downTimes[200];
+	int upTimes[MAX_CODE_SIZE];
+	int downTimes[MAX_CODE_SIZE];
 	int* pUpTimes = upTimes;
 	int* pDownTimes = downTimes;
 
@@ -290,7 +290,7 @@ int pulseGpio(FastGpio *gpioObj,int pinNum, char* pathToFile, int repeats)
 	{
 		int i = 0;
 
-		while ((fscanf(pFile, "%d,%d\n", pUpTimes,pDownTimes) != EOF) && (i++ < 200))
+		while ((fscanf(pFile, "%d,%d\n", pUpTimes,pDownTimes) != EOF) && (i++ < MAX_CODE_SIZE))
 		{
 			pUpTimes++;
 			pDownTimes++;
