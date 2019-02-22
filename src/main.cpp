@@ -46,7 +46,6 @@ int parseArguments(const char* progName, int argc, char* argv[], gpioSetup *setu
 	// check for the correct number of arguments
 	if ( argc < 2 ) 
 	{
-		usage(progName);
 		return EXIT_FAILURE;
 	}
 
@@ -78,7 +77,6 @@ int parseArguments(const char* progName, int argc, char* argv[], gpioSetup *setu
 			setup->pinValue	= atoi(argv[2]);
 		}
 		else {
-			usage(argv[0]);
 			return EXIT_FAILURE;
 		}
 	}
@@ -104,7 +102,6 @@ int parseArguments(const char* progName, int argc, char* argv[], gpioSetup *setu
 			setup->pwmDuty	= atoi(argv[3]);
 		}
 		else {
-			usage(argv[0]);
 			return EXIT_FAILURE;
 		}
 	}
@@ -384,6 +381,7 @@ int main(int argc, char* argv[])
 
 	// parse the arguments
 	if (parseArguments(progname, argc, argv, setup) == EXIT_FAILURE) {
+		usage(progname);
 		return EXIT_FAILURE;
 	}
 
