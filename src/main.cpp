@@ -167,6 +167,8 @@ int gpioRun(gpioSetup* setup)
 		print(setup->verbose, setup->cmdString, setup->pinNumber, valString);
 	}
 
+	delete gpioObj;
+
 	return status;
 }
 
