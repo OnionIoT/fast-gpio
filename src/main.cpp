@@ -336,8 +336,8 @@ int main(int argc, char* argv[])
 	int 		ch;
 
 	const char 	*progname;
-	char*		val 	= new char[255];
-	
+	char		val[255];
+
 	gpioSetup* 	setup 	= new gpioSetup;
 
 	// reset gpio setup and set defaults
@@ -419,7 +419,6 @@ int main(int argc, char* argv[])
 
 
 	// clean-up
-	delete 	val;
 	delete 	setup;
 
 	return 0;
