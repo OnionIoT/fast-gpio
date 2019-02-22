@@ -411,7 +411,7 @@ int main(int argc, char* argv[])
 			noteChildPid(setup->pinNumber, pid);
 
 			if ( setup->verbose == FASTGPIO_VERBOSITY_JSON ) {
-				sprintf(val, "%dHz with %d%% duty", setup->pwmFreq, setup->pwmDuty);
+				snprintf(val, sizeof(val), "%dHz with %d%% duty", setup->pwmFreq, setup->pwmDuty);
 				printf(FASTGPIO_JSON_STRING, setup->cmdString, setup->pinNumber, val);
 			}
 		}
