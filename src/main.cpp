@@ -126,7 +126,7 @@ int gpioRun(gpioSetup* setup)
 	} else {
 		gpioObj = new FastGpioOmega();
 	}
-	char* 		valString = new char[255];
+	char 		valString[255];
 	// object setup
 	gpioObj->SetVerbosity(setup->verbose == FASTGPIO_VERBOSITY_ALL ? 1 : 0);
 	gpioObj->SetDebugMode(setup->debug);
@@ -167,8 +167,6 @@ int gpioRun(gpioSetup* setup)
 		print(setup->verbose, setup->cmdString, setup->pinNumber, valString);
 	}
 
-	// clean-up
-	delete valString;
 	return status;
 }
 
@@ -176,7 +174,6 @@ int gpioRun(gpioSetup* setup)
 int pwmRun(gpioSetup* setup)
 {	//Gotta change this to either reference the Omega or Omega 2 object
 	FastPwm		pwmObj;
-	char* 		valString = new char[255];
 
 	// check for correct command
 	if (setup->cmd != GPIO_CMD_PWM) {
@@ -191,8 +188,6 @@ int pwmRun(gpioSetup* setup)
 	// object operations	
 	pwmObj.Pwm(setup->pinNumber, setup->pwmFreq, setup->pwmDuty);
 
-	// clean-up
-	delete valString;
 	return EXIT_SUCCESS;
 }
 
