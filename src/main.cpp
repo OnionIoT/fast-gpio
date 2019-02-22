@@ -280,8 +280,8 @@ int pulseGpio(FastGpio *gpioObj,int pinNum, char* pathToFile, int repeats)
 	FILE * pFile;
 	pFile = fopen (pathToFile,"r");
 	// Max code size is 200 
-	int* upTimes = new int[200];
-	int* downTimes = new int[200];
+	int upTimes[200];
+	int downTimes[200];
 	int* pUpTimes = upTimes;
 	int* pDownTimes = downTimes;
 
@@ -317,11 +317,6 @@ int pulseGpio(FastGpio *gpioObj,int pinNum, char* pathToFile, int repeats)
 			pDownTimes++;
 		}
 	}
-
-	delete[] upTimes;
-	delete[] downTimes;
-
-
 }
 
 int main(int argc, char* argv[])
