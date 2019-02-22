@@ -127,7 +127,6 @@ int gpioRun(gpioSetup* setup)
 		gpioObj = new FastGpioOmega();
 	}
 	char* 		valString = new char[255];
-	// Modify here to point to Omega or Omega2 Object. 
 	// object setup
 	gpioObj->SetVerbosity(setup->verbose == FASTGPIO_VERBOSITY_ALL ? 1 : 0);
 	gpioObj->SetDebugMode(setup->debug);
