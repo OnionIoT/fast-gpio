@@ -46,7 +46,6 @@ int parseArguments(const char* progName, int argc, char* argv[], gpioSetup *setu
 	// check for the correct number of arguments
 	if ( argc < 2 ) 
 	{
-		usage(progName);
 		return EXIT_FAILURE;
 	}
 
@@ -78,7 +77,6 @@ int parseArguments(const char* progName, int argc, char* argv[], gpioSetup *setu
 			setup->pinValue	= atoi(argv[2]);
 		}
 		else {
-			usage(argv[0]);
 			return EXIT_FAILURE;
 		}
 	}
@@ -104,7 +102,6 @@ int parseArguments(const char* progName, int argc, char* argv[], gpioSetup *setu
 			setup->pwmDuty	= atoi(argv[3]);
 		}
 		else {
-			usage(argv[0]);
 			return EXIT_FAILURE;
 		}
 	}
@@ -129,8 +126,7 @@ int gpioRun(gpioSetup* setup)
 	} else {
 		gpioObj = new FastGpioOmega();
 	}
-	char* 		valString = new char[255];
-	// Modify here to point to Omega or Omega2 Object. 
+	char 		valString[255];
 	// object setup
 	gpioObj->SetVerbosity(setup->verbose == FASTGPIO_VERBOSITY_ALL ? 1 : 0);
 	gpioObj->SetDebugMode(setup->debug);
@@ -171,8 +167,8 @@ int gpioRun(gpioSetup* setup)
 		print(setup->verbose, setup->cmdString, setup->pinNumber, valString);
 	}
 
-	// clean-up
-	delete valString;
+	delete gpioObj;
+
 	return status;
 }
 
@@ -180,7 +176,6 @@ int gpioRun(gpioSetup* setup)
 int pwmRun(gpioSetup* setup)
 {	//Gotta change this to either reference the Omega or Omega 2 object
 	FastPwm		pwmObj;
-	char* 		valString = new char[255];
 
 	// check for correct command
 	if (setup->cmd != GPIO_CMD_PWM) {
@@ -195,8 +190,6 @@ int pwmRun(gpioSetup* setup)
 	// object operations	
 	pwmObj.Pwm(setup->pinNumber, setup->pwmFreq, setup->pwmDuty);
 
-	// clean-up
-	delete valString;
 	return EXIT_SUCCESS;
 }
 
@@ -284,13 +277,13 @@ void pulse(FastGpio *gpioObj,int pinNum,int highMicros, int lowMicros)
 
 int pulseGpio(FastGpio *gpioObj,int pinNum, char* pathToFile, int repeats)
 {
+	const int MAX_CODE_SIZE = 200;
 	gpioObj->SetDirection(pinNum,1);
 
 	FILE * pFile;
 	pFile = fopen (pathToFile,"r");
-	// Max code size is 200 
-	int* upTimes = new int[200];
-	int* downTimes = new int[200];
+	int upTimes[MAX_CODE_SIZE];
+	int downTimes[MAX_CODE_SIZE];
 	int* pUpTimes = upTimes;
 	int* pDownTimes = downTimes;
 
@@ -299,7 +292,7 @@ int pulseGpio(FastGpio *gpioObj,int pinNum, char* pathToFile, int repeats)
 	{
 		int i = 0;
 
-		while ((fscanf(pFile, "%d,%d\n", pUpTimes,pDownTimes) != EOF) && (i++ < 200))
+		while ((fscanf(pFile, "%d,%d\n", pUpTimes,pDownTimes) != EOF) && (i++ < MAX_CODE_SIZE))
 		{
 			pUpTimes++;
 			pDownTimes++;
@@ -326,11 +319,6 @@ int pulseGpio(FastGpio *gpioObj,int pinNum, char* pathToFile, int repeats)
 			pDownTimes++;
 		}
 	}
-
-	delete[] upTimes;
-	delete[] downTimes;
-
-
 }
 
 int main(int argc, char* argv[])
@@ -339,9 +327,10 @@ int main(int argc, char* argv[])
 	int 		ch;
 
 	const char 	*progname;
-	char*		val 	= new char[255];
-	
-	gpioSetup* 	setup 	= new gpioSetup;
+	char		val[255];
+
+	gpioSetup 	_setup;
+	gpioSetup* 	setup = &_setup;
 
 	// reset gpio setup and set defaults
 	initGpioSetup(setup);
@@ -384,6 +373,7 @@ int main(int argc, char* argv[])
 
 	// parse the arguments
 	if (parseArguments(progname, argc, argv, setup) == EXIT_FAILURE) {
+		usage(progname);
 		return EXIT_FAILURE;
 	}
 
@@ -413,16 +403,11 @@ int main(int argc, char* argv[])
 			noteChildPid(setup->pinNumber, pid);
 
 			if ( setup->verbose == FASTGPIO_VERBOSITY_JSON ) {
-				sprintf(val, "%dHz with %d%% duty", setup->pwmFreq, setup->pwmDuty);
+				snprintf(val, sizeof(val), "%dHz with %d%% duty", setup->pwmFreq, setup->pwmDuty);
 				printf(FASTGPIO_JSON_STRING, setup->cmdString, setup->pinNumber, val);
 			}
 		}
 	}
-
-
-	// clean-up
-	delete 	val;
-	delete 	setup;
 
 	return 0;
 }
